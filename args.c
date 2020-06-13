@@ -6,7 +6,7 @@
 /*   By: sghezn <sghezn@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/09 05:35:15 by sghezn            #+#    #+#             */
-/*   Updated: 2020/06/11 12:04:56 by sghezn           ###   ########.fr       */
+/*   Updated: 2020/06/14 01:23:27 by sghezn           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,10 @@ void	ft_del_arg(void)
 		g_select.curr = &curr->next;
 	curr->next->prev = curr->prev;
 	curr->prev->next = curr->next;
-	ft_strdel(&curr->value);
-	ft_memdel((void**)&curr);
+	free(curr->value);
+	curr->value = NULL;
+	free(curr);
+	curr = NULL;
 	g_select.argc--;
 	if (!g_select.argc)
 		ft_quit();
@@ -109,20 +111,21 @@ void	ft_display_args(t_arg *args, t_arg *start, int rows, int cols)
 
 void	ft_free_args(void)
 {
+	t_arg	*start;
 	t_arg	*curr;
-	t_arg	*ptr;
 
-	ptr = g_select.args;
+	start = g_select.args;
 	while (g_select.args)
 	{
 		curr = g_select.args;
-		ft_strdel(&g_select.args->value);
+		free(g_select.args->value);
+		g_select.args->value = NULL;
+		free(curr);
+		curr = NULL;
 		g_select.argc--;
-		if (g_select.args->next == ptr)
+		if (g_select.args->next == start)
 			break ;
 		g_select.args = g_select.args->next;
-		ft_memdel((void**)&curr);
 	}
-	(curr) ? ft_memdel((void**)&curr) : 0;
 	g_select.args = NULL;
 }
