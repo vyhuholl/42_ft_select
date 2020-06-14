@@ -6,7 +6,7 @@
 /*   By: sghezn <sghezn@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/09 05:35:15 by sghezn            #+#    #+#             */
-/*   Updated: 2020/06/14 01:23:27 by sghezn           ###   ########.fr       */
+/*   Updated: 2020/06/14 18:04:58 by sghezn           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,12 +120,17 @@ void	ft_free_args(void)
 		curr = g_select.args;
 		free(g_select.args->value);
 		g_select.args->value = NULL;
-		free(curr);
-		curr = NULL;
 		g_select.argc--;
 		if (g_select.args->next == start)
 			break ;
 		g_select.args = g_select.args->next;
+		free(curr);
+		curr = NULL;
+	}
+	if (curr)
+	{
+		free(curr);
+		curr = NULL;
 	}
 	g_select.args = NULL;
 }
