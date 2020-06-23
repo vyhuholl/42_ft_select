@@ -6,7 +6,7 @@
 /*   By: sghezn <sghezn@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/08 20:00:41 by sghezn            #+#    #+#             */
-/*   Updated: 2020/06/10 14:56:07 by sghezn           ###   ########.fr       */
+/*   Updated: 2020/06/23 06:52:26 by sghezn           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@
 # include <termios.h>
 # include <unistd.h>
 # include <sys/ioctl.h>
-
-# define BUFF_SIZE	1024
 
 # define WIDTH		0
 # define HEIGHT		1
@@ -51,10 +49,9 @@ typedef struct		s_arg
 
 typedef struct		s_select
 {
-	char			*term;
 	int				argc;
 	int				selected;
-	t_arg			**curr;
+	t_arg			*curr;
 	t_arg			*args;
 	struct termios	old_termios;
 	struct termios	new_termios;
@@ -69,7 +66,7 @@ void				ft_stop(void);
 void				ft_signal_handler(int signo);
 void				ft_new_arg(char *value);
 int					ft_max_arg_len(void);
-void				ft_del_arg(void);
+void				ft_del_arg(t_arg **arg);
 void				ft_display_args(t_arg *args, t_arg *start,
 					int rows, int cols);
 void				ft_free_args(void);
@@ -79,7 +76,7 @@ void				ft_move(long c);
 void				ft_display(void);
 void				ft_print_selection(void);
 void				ft_init_term(void);
-void				ft_init_args(int argc, char **argv);
+void				ft_init_args(char **argv);
 void				ft_init_signal_handler(void);
 void				ft_select(void);
 

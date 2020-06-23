@@ -6,7 +6,7 @@
 /*   By: sghezn <sghezn@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/09 05:35:15 by sghezn            #+#    #+#             */
-/*   Updated: 2020/06/14 18:04:58 by sghezn           ###   ########.fr       */
+/*   Updated: 2020/06/23 07:30:40 by sghezn           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,21 +19,20 @@ void	ft_new_arg(char *value)
 
 	arg = (t_arg*)ft_memalloc(sizeof(t_arg));
 	arg->value = ft_strdup(value);
+	g_select.argc++;
 	if (!g_select.args)
 	{
 		arg->prev = arg;
 		arg->next = arg;
 		g_select.args = arg;
-		g_select.curr = &g_select.args;
+		g_select.curr = g_select.args;
+		return ;
 	}
-	else
-	{
-		prev = g_select.args->prev;
-		arg->next = g_select.args;
-		g_select.args->prev = arg;
-		arg->prev = prev;
-		prev->next = arg;
-	}
+	prev = g_select.args->prev;
+	arg->next = g_select.args;
+	g_select.args->prev = arg;
+	arg->prev = prev;
+	prev->next = arg;
 }
 
 int		ft_max_arg_len(void)
@@ -46,8 +45,8 @@ int		ft_max_arg_len(void)
 	max = 0;
 	if (!g_select.args || !g_select.args->value)
 		return (max);
-	start = g_select.args;
-	ptr = start;
+	ptr = g_select.args;
+	start = ptr;
 	while (ptr)
 	{
 		if ((curr = ft_strlen(ptr->value)) > max)
@@ -59,26 +58,27 @@ int		ft_max_arg_len(void)
 	return (max);
 }
 
-void	ft_del_arg(void)
+void	ft_del_arg(t_arg **arg)
 {
 	t_arg	*curr;
+	int		first;
 
-	if (!g_select.curr)
-		return ;
-	curr = *g_select.curr;
-	if (g_select.args == curr)
-		g_select.args = (curr->next != curr) ? curr->next : NULL;
-	else
-		g_select.curr = &curr->next;
-	curr->next->prev = curr->prev;
-	curr->prev->next = curr->next;
-	free(curr->value);
-	curr->value = NULL;
-	free(curr);
-	curr = NULL;
-	g_select.argc--;
-	if (!g_select.argc)
-		ft_quit();
+	if (*arg)
+	{
+		g_select.argc--;
+		if (!g_select.argc)
+			ft_quit();
+		g_select.selected -= ((*arg)->selected) ? 1 : 0;
+		first = ((*arg) == g_select.args);
+		(*arg)->next->prev = (*arg)->prev;
+		(*arg)->prev->next = (*arg)->next;
+		curr = (*arg)->next;
+		(*arg) ? ft_strdel(&(*arg)->value) : 0;
+		ft_memdel((void**)arg);
+		*arg = curr;
+		if (first)
+			g_select.args = curr;
+	}
 }
 
 void	ft_display_args(t_arg *args, t_arg *start, int rows, int cols)
@@ -93,7 +93,7 @@ void	ft_display_args(t_arg *args, t_arg *start, int rows, int cols)
 		j = -1;
 		while (++j < cols)
 		{
-			(args == (*g_select.curr)) ? ft_putstr_fd(UNDERLINE, 0) : 0;
+			(args == g_select.curr) ? ft_putstr_fd(UNDERLINE, 0) : 0;
 			(args->selected) ? ft_putstr_fd(INV_VIDEO, 0) : 0;
 			ft_putstr_fd(args->value, 0);
 			ft_putstr_fd(RESET, 0);
@@ -118,19 +118,13 @@ void	ft_free_args(void)
 	while (g_select.args)
 	{
 		curr = g_select.args;
-		free(g_select.args->value);
-		g_select.args->value = NULL;
+		ft_strdel(&g_select.args->value);
 		g_select.argc--;
 		if (g_select.args->next == start)
 			break ;
 		g_select.args = g_select.args->next;
-		free(curr);
-		curr = NULL;
+		ft_memdel((void**)&curr);
 	}
-	if (curr)
-	{
-		free(curr);
-		curr = NULL;
-	}
+	ft_memdel((void**)&curr);
 	g_select.args = NULL;
 }

@@ -6,7 +6,7 @@
 /*   By: sghezn <sghezn@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/09 12:53:00 by sghezn            #+#    #+#             */
-/*   Updated: 2020/06/11 08:57:36 by sghezn           ###   ########.fr       */
+/*   Updated: 2020/06/23 06:49:23 by sghezn           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,18 +39,18 @@ void	ft_move(long c)
 
 	i = 0;
 	cols = ft_cols();
-	curr = *g_select.curr;
+	curr = g_select.curr;
 	if (c == UP_KEY || c == LEFT_KEY)
 	{
 		while (c == UP_KEY && ++i < cols)
 			curr = curr->prev;
-		g_select.curr = &curr->prev;
+		g_select.curr = curr->prev;
 	}
 	else if (c == DOWN_KEY || c == RIGHT_KEY)
 	{
 		while (c == DOWN_KEY && ++i < cols)
 			curr = curr->next;
-		g_select.curr = &curr->next;
+		g_select.curr = curr->next;
 	}
 }
 
@@ -74,9 +74,9 @@ void	ft_print_selection(void)
 {
 	t_arg	*start;
 	t_arg	*ptr;
-	int		c;
+	int		cnt;
 
-	c = 0;
+	cnt = 0;
 	if (!g_select.args || !g_select.selected)
 		return ;
 	start = g_select.args;
@@ -86,9 +86,9 @@ void	ft_print_selection(void)
 		if (ptr->selected)
 		{
 			ft_putstr(ptr->value);
-			(++c < g_select.selected) ? ft_putchar(' ') : ft_putchar('\n');
+			(++cnt < g_select.selected) ? ft_putchar(' ') : ft_putchar('\n');
 		}
-		if (ptr->next == start)
+		if (ptr->next == start || cnt == g_select.selected)
 			break ;
 		ptr = ptr->next;
 	}

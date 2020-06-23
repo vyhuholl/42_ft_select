@@ -6,7 +6,7 @@
 #    By: sghezn <sghezn@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/06/08 17:00:35 by sghezn            #+#    #+#              #
-#    Updated: 2020/06/10 04:06:56 by sghezn           ###   ########.fr        #
+#    Updated: 2020/06/23 06:46:47 by sghezn           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,10 +41,10 @@ fclean:	$(LIB_FCLEAN) clean
 re:	fclean all
 
 %.o:	%.c
-	gcc $(FLAG) -O2 -c $< -o $@ $(INC) -MD
+	gcc -g $(FLAG) -O2 -c $< -o $@ $(INC) -MD
 
 $(NAME):	$(OBJ) $(LIB)
-	gcc $(FLAG) $(OBJ) -o $(basename $(NAME)) $(LIB) $(TERM_FLAG)
+	gcc -g $(FLAG) $(OBJ) -o $(basename $(NAME)) $(LIB) $(TERM_FLAG)
 
 %.all:
 	make -C $*

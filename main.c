@@ -6,7 +6,7 @@
 /*   By: sghezn <sghezn@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/08 20:00:45 by sghezn            #+#    #+#             */
-/*   Updated: 2020/06/14 01:28:13 by sghezn           ###   ########.fr       */
+/*   Updated: 2020/06/23 07:33:38 by sghezn           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,11 @@
 
 void	ft_init_term(void)
 {
-	char	buf[BUFF_SIZE];
-	int		res;
-
+	if (!getenv("TERM") || !ft_strlen(getenv("TERM")))
+		ft_error("ft_select: TERM environment variable not set");
 	if (!isatty(0))
 		ft_error("ft_select: not a terminal");
-	if ((res = tgetent(buf, g_select.term)) < 1)
+	if (tgetent(NULL, getenv("TERM")) < 1)
 		ft_error("ft_select: tgetent error");
 	tcgetattr(0, &g_select.old_termios);
 	tcgetattr(0, &g_select.new_termios);
@@ -31,12 +30,12 @@ void	ft_init_term(void)
 	tputs(tgetstr("vi", NULL), 1, ft_putc);
 }
 
-void	ft_init_args(int argc, char **argv)
+void	ft_init_args(char **argv)
 {
 	int	i;
 
 	i = 0;
-	g_select.argc = argc - 1;
+	g_select.argc = 0;
 	g_select.selected = 0;
 	while (argv[++i])
 		ft_new_arg(argv[i]);
@@ -60,8 +59,8 @@ void	ft_select(void)
 
 	while (42)
 	{
-		c = 0;
 		ft_display();
+		c = 0;
 		read(0, &c, 8);
 		if (c == ENTER_KEY)
 			break ;
@@ -69,11 +68,13 @@ void	ft_select(void)
 			ft_quit();
 		else if (c == SPACE_KEY)
 		{
-			(*g_select.curr)->selected = !(*g_select.curr)->selected;
-			g_select.selected += ((*g_select.curr)->selected) ? 1 : -1;
+			g_select.curr->selected = !(g_select.curr->selected);
+			g_select.selected += (g_select.curr->selected) ? 1 : -1;
+			if (g_select.curr->selected)
+				g_select.curr = g_select.curr->next;
 		}
 		else if (c == DELETE_KEY || c == BCKSPC_KEY)
-			ft_del_arg();
+			ft_del_arg(&g_select.curr);
 		else
 			ft_move(c);
 	}
@@ -83,10 +84,10 @@ int		main(int argc, char **argv, char **env)
 {
 	if (argc < 2)
 		ft_error("usage: ft_select argument [argument [...]]");
-	if (!*env || !(g_select.term = getenv("TERM")))
-		ft_error("ft_select: TERM environment variable not set");
+	if (!env || !*env)
+		ft_error("ft_select: empty environment");
 	ft_init_term();
-	ft_init_args(argc, argv);
+	ft_init_args(argv);
 	ft_init_signal_handler();
 	ft_select();
 	tcsetattr(0, TCSANOW, &g_select.old_termios);
